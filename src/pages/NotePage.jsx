@@ -12,22 +12,30 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Button from '@mui/material/Button';
 
+import CircularProgress from '@mui/material/CircularProgress';
+import Box from '@mui/material/Box';
+
+import { useDispatch, useSelector } from 'react-redux';
+import { getNotes } from '../reducers/notes/notes.action';
+
 const NotePage = () => {
 
-    let [notes, setNotes] = useState([])
+    let [noteslist, setNotes] = useState('')
     const [open, setOpen] = React.useState(false);
 
+    const noteState = useSelector(state => state.notes)
+    const { error, loading, notes } = noteState
+
+    const dispatch = useDispatch()
+
     useEffect(()=>{
-        getNotes()
+    if (notes){
+        setNotes([notes])
+    }else{
+        dispatch(getNotes())
+    }    
+    },[notes])
 
-    },[])
-
-    let getNotes = async() => {
-        let response = await fetch('http://notes.pandamotions.com/api/')
-        let data = await response.json()
-
-        setNotes(data)
-    }
     const handleClickOpen = () => {
         setOpen(true);
     };
@@ -41,13 +49,17 @@ const NotePage = () => {
         <div className="notes">
             <div className='notes-header'>
                 <h2 className="notes-title">&#9782; Notes</h2>
-                <p className='notes-count'>{notes.length}</p>
+                <p className='notes-count'>{noteslist.length}</p>
             </div>
 
             <div className='notes-list'>
-                {notes.map((note, index)=> (
+                {!loading ? noteslist ? noteslist.map((note, index)=> (
                     <ListItem key={index} note={note} />
-                ))}
+                )) : 
+                '' : 
+                <Box sx={{ ml:28, mt:10}}>
+                <CircularProgress color={'warning'} />
+              </Box>}
 
             </div>
 

@@ -27,7 +27,7 @@ function Login({ history }) {
 
     useEffect(() => {
         if (userInfo){
-            console.log('Done')
+            history.push('/note')
         }
     }, [history, userInfo,])
 
@@ -40,7 +40,7 @@ function Login({ history }) {
   return (
     <div className="notes">
         <div className='notes-header'>
-            No Account? Register Here
+           <Link to='/register'>No Account? Register Here</Link>
         </div>
         <div className='notes-list'>
         <Paper container elevation={3}>

@@ -1,8 +1,12 @@
 import React, {useState, useEffect} from 'react'
 import { Link } from 'react-router-dom'
+import CircularProgress from '@mui/material/CircularProgress';
+import Box from '@mui/material/Box';
 
 import { ReactComponent as ArrowLeft } from '../assets/chevron-left.svg'
-import notes from '../assets/data'
+import { useDispatch, useSelector } from 'react-redux';
+import { getNotesDetail, getNotesUpdateDetail } from '../reducers/notes/notes.action';
+
 
 function Note({match, history}) {
 
@@ -10,28 +14,23 @@ function Note({match, history}) {
     
     let [note, setNoteDetail] = useState('')
 
+
+    const dispatch = useDispatch()
+
+    const noteDetailState = useSelector(state => state.noteDetails)
+    const { error, loading, noteDetail } = noteDetailState
+    
     useEffect(() => {
-        getNote()
-    },[noteId])
-
-    let getNote = async() =>{
-        if (noteId === 'new') return
-        let response = await fetch(`http://notes.pandamotions.com/api/details/${noteId}`)
+        if (noteDetail){
+            setNoteDetail(noteDetail)
+        }else{
+            dispatch(getNotesDetail(noteId))
+        }
         
-        let data = await response.json()
-        setNoteDetail(data)
-   
+    }, [noteId, noteDetail])
 
-    }
-
-    let updateNote = async () => {
-        await fetch(`http://notes.pandamotions.com/api/update/${noteId}`, {
-            method : 'PUT',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body:JSON.stringify({...note, 'updated': new Date()} )
-        })
+    let updateNote = () => {
+            dispatch(getNotesUpdateDetail({noteId, ...note, 'updated': new Date() }))
     }
 
 
@@ -94,9 +93,14 @@ function Note({match, history}) {
                     <button onClick={handleSubmit}>Done</button>
                 )}
             </div>
+            {loading ? 
+                <Box sx={{ ml:28, mt:10}}>
+                <CircularProgress color={'warning'} />
+              </Box>
+            : note? 
             <textarea onChange={(e) => {setNoteDetail({...note, 'body': e.target.value})}} value={note.body}>
-
-            </textarea>
+            </textarea> : ''
+            }
 
         </div>
   

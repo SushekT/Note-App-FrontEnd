@@ -48,7 +48,7 @@ function Register({ history }) {
   return (
     <div className="notes">
         <div className='notes-header'>
-            Already Account? Login Here
+            <Link to="/">Already Account? Login Here</Link>
         </div>
         <div className='notes-list'>
         <Paper container elevation={3}>

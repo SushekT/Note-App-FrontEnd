@@ -20,7 +20,6 @@ function App() {
   console.log(theme)
   const changeTheme = () =>{
     setTheme(!theme)
-    console.log('clicked')
   }
   return (
     <Router>
