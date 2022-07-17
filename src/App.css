@@ -172,7 +172,7 @@ a {
 
 .floating-button {
   font-size: 48px;
-  position: absolute;
+  position: fixed;
   bottom: 24px;
   right: 16px;
   background: var(--color-main);
@@ -193,7 +193,7 @@ a {
 
 .collaborate-button{
   font-size: 48px;
-  position: absolute;
+  position: fixed;
   bottom: 24px;
   right: 180px;
   background: var(--color-main);
@@ -217,9 +217,9 @@ a {
 
 .themechanger {
     font-size: 48px;
-    position: absolute;
+    position: fixed;
     bottom: 24px;
-    right:96px;
+    right:98px;
     background: var(--color-main);
     border: none;
     width: 60px;
@@ -233,14 +233,12 @@ a {
   }
 
 
-
-
   @media only screen and (max-width: 900px) {
     .themechanger {
         font-size: 48px;
         position: absolute;
-        bottom: 24px;
-        right:96px;
+        bottom: -18px;
+        right:78px;
         background: var(--color-main);
         border: none;
         width: 60px;

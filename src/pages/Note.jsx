@@ -5,7 +5,8 @@ import Box from '@mui/material/Box';
 
 import { ReactComponent as ArrowLeft } from '../assets/chevron-left.svg'
 import { useDispatch, useSelector } from 'react-redux';
-import { getNotesDetail, getNotesUpdateDetail } from '../reducers/notes/notes.action';
+import { getNotesDetail, getNotesDetailDelete, getNotesUpdateDetail } from '../reducers/notes/notes.action';
+import { USER_NOTE_DETAIL_RESET } from '../reducers/notes/notes.types';
 
 
 function Note({match, history}) {
@@ -18,43 +19,49 @@ function Note({match, history}) {
     const dispatch = useDispatch()
 
     const noteDetailState = useSelector(state => state.noteDetails)
-    const { error, loading, noteDetail } = noteDetailState
+    const { error, loading, noteDetail, success } = noteDetailState
     
     useEffect(() => {
-        if (noteDetail){
+        if (success){
             setNoteDetail(noteDetail)
+
         }else{
             dispatch(getNotesDetail(noteId))
         }
         
-    }, [noteId, noteDetail])
+        
+    }, [noteId, noteDetail, dispatch])
+
+    useEffect(() => {
+        dispatch(getNotesDetail(noteId))
+    }, [])
+
+    useEffect(() => {
+        return () => {
+          dispatch({
+            type: USER_NOTE_DETAIL_RESET
+        })
+        };
+      }, []);
+
+    
 
     let updateNote = () => {
             dispatch(getNotesUpdateDetail({noteId, ...note, 'updated': new Date() }))
     }
 
 
-    let createNote = async () => {
-        if (noteId !== 'new') return
-        await fetch(`http://notes.pandamotions.com/api/create`, {
-            method : 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body:JSON.stringify({...note, 'updated': new Date()} )
-        })
-
-        history.push('/')
+    let createNote = () => {
+        if (noteId != 'new') return
+       
+            dispatch(createNote({...note, 'updated': new Date()}))
+      
+            history.push('/')
     }
 
     let deleteNote = async() => {
-        await fetch(`http://notes.pandamotions.com/api/delete/${noteId}`, {
-            method : 'DELETE',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body:JSON.stringify(note)
-        })
+        if (noteId == 'new') return
+        dispatch(getNotesDetailDelete(noteId))
         history.push('/')
     }
 
@@ -75,7 +82,7 @@ function Note({match, history}) {
         history.push('/')
     }
 
-    //let note = notes.find(note => note.id == noteId)
+    // let notes = note.find(note => note.id == noteId)
 
     return (
         <div className="note">

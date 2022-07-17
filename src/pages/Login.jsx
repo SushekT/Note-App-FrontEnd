@@ -74,7 +74,7 @@ function Login({ history }) {
                 loading ? <CircularProgress /> : 'Log In'
             }
             </Button>
-            <Button href="#text-buttons" sx={{ color: 'action.active', mt:2, mb:1}}>Forgot Password?</Button>
+            <Link to='/forgot-password'><Button href="#text-buttons" sx={{ color: 'action.active', mt:2, mb:1}}>Forgot Password?</Button></Link>
             </Grid>
             
             

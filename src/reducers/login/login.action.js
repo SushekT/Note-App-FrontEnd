@@ -9,6 +9,11 @@ import {
     USER_REGISTER_REQUEST,
     USER_REGISTER_SUCCESS,
     USER_REGISTER_FAIL,
+
+    USER_FORGOT_PASSWORD_REQUEST,
+    USER_FORGOT_PASSWORD_SUCCESS,
+    USER_FORGOT_PASSWORD_RESET
+
  } from './logic.types'
 
  export const login = (email, password) => async (dispatch) => {
@@ -85,4 +90,72 @@ import {
     dispatch({
         type:USER_LOGOUT
     })
+ }
+
+ export const userForgotPassword = (email) => async (dispatch) => {
+    try {
+        dispatch({
+            type: USER_FORGOT_PASSWORD_REQUEST
+        })
+
+        const config = {
+            headers: {
+                'Content-type': 'application/json'
+            }
+        }
+
+        const { data } = await axios.post(
+            '/auth/users/reset_password/',
+            {'email': email},
+            config
+        )
+
+        dispatch({
+            type: USER_FORGOT_PASSWORD_SUCCESS,
+            payload: data
+        })
+
+        // localStorage.setItem('userInfo', JSON.stringify(data))
+    } catch(error) {
+        dispatch({
+            type: USER_FORGOT_PASSWORD_RESET,
+            payload: error.response && error.response.data.detail
+            ? error.response.data.detail 
+            : error.message,
+        })
+    }
+ }
+
+ export const usersResetPassword = (uid, token, password, confirm_password) => async (dispatch) => {
+    try {
+        dispatch({
+            type: USER_FORGOT_PASSWORD_REQUEST
+        })
+
+        const config = {
+            headers: {
+                'Content-type': 'application/json'
+            }
+        }
+
+        const { data } = await axios.post(
+            '/auth/users/reset_password_confirm/',
+            {'uid': uid, 'token': token, 'new_password': password, 're_new_password': confirm_password},
+            config
+        )
+
+        dispatch({
+            type: USER_FORGOT_PASSWORD_SUCCESS,
+            payload: data
+        })
+
+        // localStorage.setItem('userInfo', JSON.stringify(data))
+    } catch(error) {
+        dispatch({
+            type: USER_FORGOT_PASSWORD_RESET,
+            payload: error.response && error.response.data.detail
+            ? error.response.data.detail 
+            : error.message,
+        })
+    }
  }

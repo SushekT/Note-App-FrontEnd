@@ -17,24 +17,53 @@ import Box from '@mui/material/Box';
 
 import { useDispatch, useSelector } from 'react-redux';
 import { getNotes } from '../reducers/notes/notes.action';
+import { USER_NOTES_RESET, USER_NOTE_DETAIL_DELETE_RESET, USER_NOTE_DETAIL_RESET } from '../reducers/notes/notes.types';
 
 const NotePage = () => {
 
-    let [noteslist, setNotes] = useState('')
+    const [noteslist, setNotesList] = useState([])
     const [open, setOpen] = React.useState(false);
 
     const noteState = useSelector(state => state.notes)
-    const { error, loading, notes } = noteState
+    const { error, loading, notes, success } = noteState
+
+    
+    const noteDetailState = useSelector(state => state.noteDetails)
+    const { success:noteDetailSuccess } = noteDetailState
+
+    const noteDeleteState = useSelector(state => state.noteDetailsDelete)
+    const { success:noteDeleteSuccess } = noteDeleteState
 
     const dispatch = useDispatch()
+    
+    useEffect(()=>{
+        setNotesList(notes)
+        if (noteDetailSuccess){
+            dispatch(getNotes())
+            dispatch({
+                type: USER_NOTE_DETAIL_RESET
+            })
+        }
+        if(noteDeleteSuccess){
+            dispatch(getNotes())
+            dispatch({
+                type: USER_NOTE_DETAIL_DELETE_RESET
+            })
+        }
+    }, [success,noteDetailSuccess,notes, noteDeleteSuccess])
 
     useEffect(()=>{
-    if (notes){
-        setNotes([notes])
-    }else{
         dispatch(getNotes())
-    }    
-    },[notes])
+    }, [])
+
+    useEffect (() =>{
+        return () => { 
+            console.log('page reset vayo')
+            dispatch({
+              type: USER_NOTES_RESET
+          })
+          };
+    }, [])
 
     const handleClickOpen = () => {
         setOpen(true);
@@ -49,17 +78,22 @@ const NotePage = () => {
         <div className="notes">
             <div className='notes-header'>
                 <h2 className="notes-title">&#9782; Notes</h2>
-                <p className='notes-count'>{noteslist.length}</p>
+                <p className='notes-count'>{noteslist? noteslist.length: ''}</p>
             </div>
 
             <div className='notes-list'>
-                {!loading ? noteslist ? noteslist.map((note, index)=> (
-                    <ListItem key={index} note={note} />
-                )) : 
-                '' : 
+                {console.log(noteslist)}
+                {
+                loading ?  
                 <Box sx={{ ml:28, mt:10}}>
-                <CircularProgress color={'warning'} />
-              </Box>}
+                        <CircularProgress color={'warning'} />
+                    </Box>
+                     :  noteslist ? 
+                     noteslist.map((note, index)=> (
+                         <ListItem key={index} note={note} />
+                     )) :
+                    ''     
+                }
 
             </div>
 
