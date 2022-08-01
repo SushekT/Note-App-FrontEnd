@@ -3,17 +3,14 @@ import React, {useState, useEffect} from 'react'
 //import notes from '../assets/data'
 import ListItem from '../components/ListItem'
 import AddButton from '../components/AddButton'
-import PersonAddAltIcon from '@mui/icons-material/PersonAddAlt';
-import TextField from '@mui/material/TextField';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
-import DialogTitle from '@mui/material/DialogTitle';
-import Button from '@mui/material/Button';
+
 
 import CircularProgress from '@mui/material/CircularProgress';
 import Box from '@mui/material/Box';
+import Snackbar from '@mui/material/Snackbar';
+import IconButton from '@mui/material/IconButton';
+import CloseIcon from '@mui/icons-material/Close';
+import Button from '@mui/material/Button';
 
 import { useDispatch, useSelector } from 'react-redux';
 import { getNotes } from '../reducers/notes/notes.action';
@@ -29,10 +26,10 @@ const NotePage = () => {
 
     
     const noteDetailState = useSelector(state => state.noteDetails)
-    const { success:noteDetailSuccess } = noteDetailState
+    const { success:noteDetailSuccess,  } = noteDetailState
 
     const noteDeleteState = useSelector(state => state.noteDetailsDelete)
-    const { success:noteDeleteSuccess } = noteDeleteState
+    const { success:noteDeleteSuccess, error:NoteDetailDeleteError } = noteDeleteState
 
     const dispatch = useDispatch()
     
@@ -50,7 +47,10 @@ const NotePage = () => {
                 type: USER_NOTE_DETAIL_DELETE_RESET
             })
         }
-    }, [success,noteDetailSuccess,notes, noteDeleteSuccess])
+        if (NoteDetailDeleteError){
+            setOpen(true);
+        }
+    }, [success,noteDetailSuccess,notes, noteDeleteSuccess, NoteDetailDeleteError])
 
     useEffect(()=>{
         dispatch(getNotes())
@@ -58,20 +58,38 @@ const NotePage = () => {
 
     useEffect (() =>{
         return () => { 
-            console.log('page reset vayo')
             dispatch({
               type: USER_NOTES_RESET
+          })
+          dispatch({
+            type: USER_NOTE_DETAIL_DELETE_RESET
           })
           };
     }, [])
 
-    const handleClickOpen = () => {
-        setOpen(true);
+    const handleClose = (event: React.SyntheticEvent | Event, reason?: string) => {
+    if (reason === 'clickaway') {
+        return;
+    }
+
+    setOpen(false);
     };
 
-    const handleClose = () => {
-        setOpen(false);
-    };
+    const action = (
+    <React.Fragment>
+        <Button color="warning" size="small" onClick={handleClose}>
+        Close
+        </Button>
+        <IconButton
+        size="small"
+        aria-label="close"
+        color="inherit"
+        onClick={handleClose}
+        >
+        <CloseIcon fontSize="small" />
+        </IconButton>
+    </React.Fragment>
+    );
 
     return (
     
@@ -82,7 +100,6 @@ const NotePage = () => {
             </div>
 
             <div className='notes-list'>
-                {console.log(noteslist)}
                 {
                 loading ?  
                 <Box sx={{ ml:28, mt:10}}>
@@ -96,34 +113,16 @@ const NotePage = () => {
                 }
 
             </div>
-
+            <Snackbar
+                open={open}
+                autoHideDuration={6000}
+                onClose={handleClose}
+                message={NoteDetailDeleteError}
+                action={action}     
+            />
             <AddButton />
-            <div>
-                <div onClick={handleClickOpen} className='collaborate-button'>
-                    <PersonAddAltIcon />
-                </div>
-                <Dialog open={open} onClose={handleClose}>
-                    <DialogTitle> <PersonAddAltIcon /> Add a Collaboration</DialogTitle>
-                    <DialogContent>
-                    <DialogContentText>
-                        Please add the authorized person as they can view/edit your notes.
-                    </DialogContentText>
-                    <TextField
-                        autoFocus
-                        margin="dense"
-                        id="name"
-                        label="Email Address"
-                        type="email"
-                        fullWidth
-                        variant="standard"
-                    />
-                    </DialogContent>
-                    <DialogActions>
-                    <Button onClick={handleClose}>Cancel</Button>
-                    <Button onClick={handleClose}>Add Them</Button>
-                    </DialogActions>
-                </Dialog>
-            </div>
+            
+            
         </div>  
        
     )

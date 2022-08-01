@@ -3,6 +3,7 @@ import {
   Route,
 } from "react-router-dom";
 import React, {useState, useEffect} from "react";
+import { ThemeProvider, createTheme } from '@mui/material/styles';
 
 import Header from './components/Header';
 import NotePage from './pages/NotePage';
@@ -34,18 +35,27 @@ function App() {
     localStorage.setItem('theme', !theme)
     console.log(!theme)
   }
+  const darkTheme = createTheme({
+    palette: {
+      mode: theme? 'dark': 'light',
+    },
+  });
+
+
   return (
     <Router>
       <div className={`container ${theme ? "dark": ""}`}>
         <div className="app">
           <Header />
-          <Route component={Login} path="/" exact/>
-          <Route component={Register} path="/register" exact/>
-          <Route component={ForgotPassword} path="/forgot-password" exact/>
-          <Route component={NotePage} path="/note" exact/>
-          <Route component={Note} path="/note/:id" />
-          <Route component={ResetPassword} path='/password/reset/confirm/:uid/:token' exact/>
-          <Route exact path='/activate/:uid/:token' component={Note} />
+          <ThemeProvider theme={darkTheme}>
+            <Route component={Login} path="/" exact/>
+            <Route component={Register} path="/register" exact/>
+            <Route component={ForgotPassword} path="/forgot-password" exact/>
+            <Route component={NotePage} path="/note" exact/>
+            <Route component={Note} path="/note/:id" />
+            <Route component={ResetPassword} path='/password/reset/confirm/:uid/:token' exact/>
+            <Route exact path='/activate/:uid/:token' component={Note} />
+          </ThemeProvider>
           <div onClick={changeTheme}>
             {theme == 'true' || theme?
               <ThemeChanger  /> :

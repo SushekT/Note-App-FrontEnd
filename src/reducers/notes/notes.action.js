@@ -167,7 +167,7 @@ import {
     }
  }
 
- export const createNote = (note) => async (dispatch, getState) => {
+ export const createNewNote = (note) => async (dispatch, getState) => {
     try {
         dispatch({
             type: USER_NOTES_CREATE_REQUEST

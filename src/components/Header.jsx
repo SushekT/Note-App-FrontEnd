@@ -12,7 +12,7 @@ import { logout } from '../reducers/login/login.action';
 
 const Qqq = (props) => {
     return (
-        <Avatar alt="Sushek" src="/static/images/avatar/1.jpg"
+        <Avatar alt="Sushek" src=""
             id="basic-button"
             aria-controls={props.open ? 'basic-menu' : undefined}
             aria-haspopup="true"
@@ -57,11 +57,6 @@ const Header = () => {
         },
       }));
       
-      const SmallAvatar = styled(Avatar)(({ theme }) => ({
-        width: 22,
-        height: 22,
-        border: `2px solid ${theme.palette.background.paper}`,
-      }));
 
       const [anchorEl, setAnchorEl] = useState(null)
       const open = Boolean(anchorEl);
