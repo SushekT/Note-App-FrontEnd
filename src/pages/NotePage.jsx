@@ -15,6 +15,7 @@ import Button from '@mui/material/Button';
 import { useDispatch, useSelector } from 'react-redux';
 import { getNotes } from '../reducers/notes/notes.action';
 import { USER_NOTES_RESET, USER_NOTE_DETAIL_DELETE_RESET, USER_NOTE_DETAIL_RESET } from '../reducers/notes/notes.types';
+import LogoutButton from '../components/LogoutButton';
 
 const NotePage = () => {
 
@@ -120,6 +121,7 @@ const NotePage = () => {
                 message={NoteDetailDeleteError}
                 action={action}     
             />
+            <LogoutButton />
             <AddButton />
             
             

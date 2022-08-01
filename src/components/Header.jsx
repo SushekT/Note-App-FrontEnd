@@ -1,14 +1,11 @@
-import React, {useState, useEffect} from 'react'
+import React, {useState} from 'react'
 import { styled } from '@mui/material/styles';
 import Badge from '@mui/material/Badge';
 import Avatar from '@mui/material/Avatar';
-import Menu from '@mui/material/Menu';
-import MenuItem from '@mui/material/MenuItem';
 import Grid from '@mui/material/Grid';
-import { useDispatch, useSelector } from 'react-redux';
-import { useHistory } from "react-router-dom";
+import { useSelector } from 'react-redux';
 
-import { logout } from '../reducers/login/login.action';
+
 
 const Qqq = (props) => {
     return (
@@ -24,10 +21,7 @@ const Qqq = (props) => {
 const Header = () => {
     const userLogin = useSelector(state => state.userLogin)
     const { userInfo } = userLogin
-
-    const dispatch = useDispatch()
-    const history = useHistory();
-
+ 
     const StyledBadge = styled(Badge)(({ theme }) => ({
         '& .MuiBadge-badge': {
           backgroundColor: '#44b700',
@@ -63,18 +57,10 @@ const Header = () => {
       const handleClick = (event) => {
         setAnchorEl(event);
       };
-      const handleClose = () => {
-        setAnchorEl(null);
-      };
-      const logoutHandler = () =>{
-        dispatch(logout())
-        history.push('/')
-      }
     return(
         <div className='app-header'>
              <Grid item xs={8}><h1>Notes App</h1></Grid>
              <Grid item xs={4}>
-             
               {
                 userInfo ? (<>
                   <StyledBadge
@@ -83,28 +69,10 @@ const Header = () => {
                       variant="dot"
                   >
                   <Qqq handleClick={handleClick} open={open}/>
-                  <Menu
-                      id="basic-menu"
-                      anchorEl={anchorEl}
-                      open={open}
-                      onClose={handleClose}
-                      MenuListProps={{
-                      'aria-labelledby': 'basic-button',
-                      }}
-                      anchorOrigin={{
-                          vertical: 'top',
-                          horizontal: 'right',
-                        }}
-                  >
-                      <MenuItem onClick={handleClose}>Profile</MenuItem>
-                      <MenuItem onClick={logoutHandler}>Logout</MenuItem>
-                  </Menu>
                   </StyledBadge>
                   </>
                 ) : ''
               }
-
-            
            
             </Grid>
             
