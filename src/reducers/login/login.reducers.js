@@ -15,7 +15,12 @@ import {
 
     USER_FORGOT_PASSWORD_REQUEST,
     USER_FORGOT_PASSWORD_SUCCESS,
-    USER_FORGOT_PASSWORD_RESET
+    USER_FORGOT_PASSWORD_RESET,
+
+    USER_UPDATE_PASSWORD_REQUEST,
+    USER_UPDATE_PASSWORD_SUCCESS,
+    USER_UPDATE_PASSWORD_FAIL,
+    USER_UPDATE_PASSWORD_RESET
 
  } from './logic.types'
 
@@ -89,3 +94,23 @@ import {
             return state
     }
  }
+
+ export const userProfileUpdate = (state = {}, action) => {
+
+    switch (action.type){
+        case USER_UPDATE_PASSWORD_REQUEST:
+            return {loading: true, success:false}
+
+        case USER_UPDATE_PASSWORD_SUCCESS:
+            return { loading: false, userResetPassword: action.payload, success:true }
+
+        case USER_UPDATE_PASSWORD_FAIL:
+            return {loading: false, error: action.payload, success:false }
+
+        case USER_UPDATE_PASSWORD_RESET:
+            return { }
+
+        default:
+            return state
+    }
+}

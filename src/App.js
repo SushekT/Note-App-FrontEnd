@@ -16,6 +16,7 @@ import './App.css';
 import Register from "./pages/Register";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import UpdateProfile from "./pages/UpdateProfile";
 
 function App() {
 
@@ -51,6 +52,7 @@ function App() {
             <Route component={Login} path="/" exact/>
             <Route component={Register} path="/register" exact/>
             <Route component={ForgotPassword} path="/forgot-password" exact/>
+            <Route component={UpdateProfile} path='/update-profile' exact/>
             <Route component={NotePage} path="/note" exact/>
             <Route component={Note} path="/note/:id" />
             <Route component={ResetPassword} path='/password/reset/confirm/:uid/:token' exact/>

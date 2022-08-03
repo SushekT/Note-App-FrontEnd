@@ -4,6 +4,7 @@ import Badge from '@mui/material/Badge';
 import Avatar from '@mui/material/Avatar';
 import Grid from '@mui/material/Grid';
 import { useSelector } from 'react-redux';
+import { useHistory, Link } from 'react-router-dom';
 
 
 
@@ -21,6 +22,8 @@ const Qqq = (props) => {
 const Header = () => {
     const userLogin = useSelector(state => state.userLogin)
     const { userInfo } = userLogin
+
+    const history = useHistory()
  
     const StyledBadge = styled(Badge)(({ theme }) => ({
         '& .MuiBadge-badge': {
@@ -56,6 +59,7 @@ const Header = () => {
       const open = Boolean(anchorEl);
       const handleClick = (event) => {
         setAnchorEl(event);
+        history.push('/update-profile')
       };
     return(
         <div className='app-header'>
@@ -68,7 +72,10 @@ const Header = () => {
                       anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
                       variant="dot"
                   >
-                  <Qqq handleClick={handleClick} open={open}/>
+                  <Link>
+                    <Qqq className="cursor-pointer" handleClick={handleClick} open={open}/>
+                  </Link>  
+                  
                   </StyledBadge>
                   </>
                 ) : ''
