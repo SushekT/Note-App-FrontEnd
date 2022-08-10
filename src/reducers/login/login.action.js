@@ -14,10 +14,10 @@ import {
     USER_FORGOT_PASSWORD_SUCCESS,
     USER_FORGOT_PASSWORD_RESET,
 
-    USER_UPDATE_PASSWORD_REQUEST,
-    USER_UPDATE_PASSWORD_SUCCESS,
-    USER_UPDATE_PASSWORD_FAIL,
-    USER_UPDATE_PASSWORD_RESET
+    USER_UPDATE_REQUEST,
+    USER_UPDATE_SUCCESS,
+    USER_UPDATE_FAIL,
+    USER_UPDATE_RESET,
 
  } from './logic.types'
 
@@ -34,7 +34,7 @@ import {
         }
 
         const { data } = await axios.post(
-            '/auth/jwt/create/',
+            '/user/create/',
             {'email': email, 'password': password},
             config
         )
@@ -69,7 +69,7 @@ import {
         }
 
         const { data } = await axios.post(
-            '/auth/users/',
+            '/user/register/',
             {'email': email, 'username': username, 'password': password},
             config
         )
@@ -168,7 +168,47 @@ import {
  export const profileUpdate = ( firstname, lastname, image ) => async (dispatch, getState) => {
     try {
         dispatch({
-            type: USER_UPDATE_PASSWORD_REQUEST
+            type: USER_UPDATE_REQUEST
+        })
+        const {userLogin: { userInfo }} = getState()
+
+        const config = {
+            headers: {
+                'Content-type': 'application/json',
+                Authorization: `Bearer ${userInfo.access}`
+            }
+        }
+        const { data } = await axios.patch(
+            '/user/profile-update/',
+            {
+            'first_name': firstname, 
+            'last_name': lastname, 
+            'profile_pic': image,
+         },
+            config
+        )
+
+        dispatch({
+            type: USER_UPDATE_SUCCESS,
+            payload: data
+        })
+
+        // localStorage.setItem('userInfo', JSON.stringify(data))
+    } catch(error) {
+        dispatch({
+            type: USER_UPDATE_FAIL,
+            payload: error.response && error.response.data.detail
+            ? error.response.data.detail 
+            : error.message,
+        })
+    }
+ }
+
+
+ export const getProfileUpdate = () => async (dispatch, getState) => {
+    try {
+        dispatch({
+            type: USER_UPDATE_REQUEST
         })
         const {userLogin: { userInfo }} = getState()
 
@@ -179,21 +219,20 @@ import {
             }
         }
 
-        const { data } = await axios.post(
-            '',
-            {'uid': firstname, 'token': lastname, 'new_password': image, },
+        const { data } = await axios.get(
+            '/user/profile-update/',
             config
         )
 
         dispatch({
-            type: USER_UPDATE_PASSWORD_SUCCESS,
+            type: USER_UPDATE_SUCCESS,
             payload: data
         })
 
         // localStorage.setItem('userInfo', JSON.stringify(data))
     } catch(error) {
         dispatch({
-            type: USER_UPDATE_PASSWORD_FAIL,
+            type: USER_UPDATE_FAIL,
             payload: error.response && error.response.data.detail
             ? error.response.data.detail 
             : error.message,

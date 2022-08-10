@@ -11,9 +11,11 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { useDispatch, useSelector } from 'react-redux';
 import IconButton from '@mui/material/IconButton';
 import PhotoCamera from '@mui/icons-material/PhotoCamera';
+import { Avatar } from '@mui/material';
 
 import Message from '../components/Message';
 import { ReactComponent as ArrowLeft } from '../assets/chevron-left.svg'
+import { getProfileUpdate, profileUpdate } from '../reducers/login/login.action';
 
 export default function UpdateProfile() {
 
@@ -22,10 +24,25 @@ export default function UpdateProfile() {
     const [image, setImage] = useState('')
     const width = '60%;'
 
-    const loading = false
-    const error = false
 
     const dispatch = useDispatch()
+
+    const loadUpdateProfile = useSelector(state => state.userProfileUpdate)
+    const { error, loading, loadedUpdatedProfile, success } = loadUpdateProfile
+
+    useEffect(() =>{
+
+        if (success){
+            setFirstName(loadedUpdatedProfile.user.first_name);
+            setLastName(loadedUpdatedProfile.user.last_name);
+        }
+
+    },[success])
+
+    useEffect(() => {
+        dispatch(getProfileUpdate());
+        
+    }, [])
 
     const history = useHistory()
     let handleSubmit = () =>{
@@ -33,7 +50,8 @@ export default function UpdateProfile() {
     }
     const submitHandler = (e) =>{
         e.preventDefault()
-        console.log(firstName, lastName, image)
+        dispatch(profileUpdate(firstName, lastName, image))
+        history.push('/')
     }
     return (
     <div className="note">
@@ -64,8 +82,9 @@ export default function UpdateProfile() {
             <Grid container item xs={12} maxWidth="sm" alignItems="center" direction="column">
                 <IconButton color="warning" aria-label="upload picture" component="label">
                     <input hidden accept="image/*" type="file" value={image} onChange={(e) => setImage(e.target.value)} />
-                    <PhotoCamera />
-                </IconButton>
+                    <PhotoCamera />  
+                </IconButton> 
+                <Avatar alt={firstName} src={image} sx={{ width: 24, height: 24 }} />
                 <Typography variant="p" gutterBottom component="p" sx={{ color: 'action.active', fontSize: 12 }}>
                     Upload Your Profile Photo
                 </Typography>
