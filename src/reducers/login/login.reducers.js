@@ -20,7 +20,8 @@ import {
     USER_UPDATE_REQUEST,
     USER_UPDATE_SUCCESS,
     USER_UPDATE_FAIL,
-    USER_UPDATE_RESET
+    USER_UPDATE_RESET,
+    USER_UPDATE_GET_SUCCESS
 
  } from './logic.types'
 
@@ -102,7 +103,10 @@ import {
             return {loading: true, success:false}
 
         case USER_UPDATE_SUCCESS:
-            return { loading: false, loadedUpdatedProfile: action.payload, success:true}
+            return { loading: false, loadedUpdatedProfile: action.payload, success:true, updateSuccess:false}
+        
+        case USER_UPDATE_GET_SUCCESS:
+            return { loading: false, loadedUpdatedProfile: action.payload, updateSuccess:true, success:true,}
 
         case USER_UPDATE_FAIL:
             return {loading: false, error: action.payload, success:false }

@@ -18,6 +18,8 @@ import {
     USER_UPDATE_SUCCESS,
     USER_UPDATE_FAIL,
     USER_UPDATE_RESET,
+    USER_UPDATE_GET_SUCCESS,
+    
 
  } from './logic.types'
 
@@ -165,7 +167,7 @@ import {
     }
  }
 
- export const profileUpdate = ( firstname, lastname, image ) => async (dispatch, getState) => {
+ export const profileUpdate = ( forms ) => async (dispatch, getState) => {
     try {
         dispatch({
             type: USER_UPDATE_REQUEST
@@ -180,16 +182,12 @@ import {
         }
         const { data } = await axios.patch(
             '/user/profile-update/',
-            {
-            'first_name': firstname, 
-            'last_name': lastname, 
-            'profile_pic': image,
-         },
+            forms,
             config
         )
 
         dispatch({
-            type: USER_UPDATE_SUCCESS,
+            type: USER_UPDATE_GET_SUCCESS,
             payload: data
         })
 
