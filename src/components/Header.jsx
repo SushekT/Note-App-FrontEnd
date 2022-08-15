@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React, {useState, useEffect} from 'react'
 import { styled } from '@mui/material/styles';
 import Badge from '@mui/material/Badge';
 import Avatar from '@mui/material/Avatar';
@@ -10,7 +10,7 @@ import { useHistory, Link } from 'react-router-dom';
 
 const Qqq = (props) => {
     return (
-        <Avatar alt="Sushek" src=""
+        <Avatar alt={props.loadedUpdatedProfile.email} src={props.loadedUpdatedProfile.image}
             id="basic-button"
             aria-controls={props.open ? 'basic-menu' : undefined}
             aria-haspopup="true"
@@ -22,8 +22,24 @@ const Qqq = (props) => {
 const Header = () => {
     const userLogin = useSelector(state => state.userLogin)
     const { userInfo } = userLogin
+    const [userDetail, setUserDetail] = useState({
+      'email' : '',
+      'image' : ''
+    })
+
+    const loadUpdateProfile = useSelector(state => state.userProfileUpdate)
+    const { loading, loadedUpdatedProfile, success } = loadUpdateProfile
 
     const history = useHistory()
+
+    useEffect(() =>{
+      if (success){
+        setUserDetail({
+          'email' : loadedUpdatedProfile.user.email,
+          'image' : loadedUpdatedProfile.profile_pic
+        })
+      }
+    },[success])
  
     const StyledBadge = styled(Badge)(({ theme }) => ({
         '& .MuiBadge-badge': {
@@ -73,7 +89,7 @@ const Header = () => {
                       variant="dot"
                   >
                   <Link>
-                    <Qqq className="cursor-pointer" handleClick={handleClick} open={open}/>
+                    <Qqq loadedUpdatedProfile={userDetail} className="cursor-pointer" handleClick={handleClick} open={open}/>
                   </Link>  
                   
                   </StyledBadge>

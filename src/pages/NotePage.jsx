@@ -12,10 +12,12 @@ import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 import Button from '@mui/material/Button';
 
+
 import { useDispatch, useSelector } from 'react-redux';
 import { getNotes } from '../reducers/notes/notes.action';
 import { USER_NOTES_RESET, USER_NOTE_DETAIL_DELETE_RESET, USER_NOTE_DETAIL_RESET } from '../reducers/notes/notes.types';
 import LogoutButton from '../components/LogoutButton';
+import { getProfileUpdate } from '../reducers/login/login.action';
 
 const NotePage = () => {
 
@@ -55,6 +57,7 @@ const NotePage = () => {
 
     useEffect(()=>{
         dispatch(getNotes())
+        dispatch(getProfileUpdate());
     }, [])
 
     useEffect (() =>{

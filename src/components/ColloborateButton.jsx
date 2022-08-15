@@ -1,7 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import PersonAddAltIcon from '@mui/icons-material/PersonAddAlt';
-import TextField from '@mui/material/TextField';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
@@ -30,15 +29,7 @@ function CollaborateButton() {
            <DialogContentText>
              Please add the authorized person as they can view/edit your notes.
            </DialogContentText>
-           <TextField
-             autoFocus
-             margin="dense"
-             id="name"
-             label="Email Address"
-             type="email"
-             fullWidth
-             variant="standard"
-           />
+           
          </DialogContent>
          <DialogActions>
            <Button onClick={handleClose}>Cancel</Button>

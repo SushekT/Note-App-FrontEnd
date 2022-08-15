@@ -46,8 +46,6 @@ export default function UpdateProfile() {
         if (updateSuccess){
             setOpen(updateSuccess)
         }
-        
-        
 
     },[success, updateSuccess])
 
