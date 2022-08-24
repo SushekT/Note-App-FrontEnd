@@ -21,7 +21,12 @@ import {
     USER_UPDATE_SUCCESS,
     USER_UPDATE_FAIL,
     USER_UPDATE_RESET,
-    USER_UPDATE_GET_SUCCESS
+    USER_UPDATE_GET_SUCCESS,
+
+    GET_USER_REQUEST,
+    GET_USER_SUCCESS,
+    GET_USER_FAIL,
+    GET_USER_RESET
 
  } from './logic.types'
 
@@ -112,6 +117,27 @@ import {
             return {loading: false, error: action.payload, success:false }
 
         case USER_UPDATE_RESET:
+            return { }
+
+        default:
+            return state
+    }
+}
+
+
+export const userGetReducer = (state = { }, action) => {
+
+    switch (action.type){
+        case GET_USER_REQUEST:
+            return {loading: true, success:false}
+
+        case GET_USER_SUCCESS:
+            return { loading: false, alluser: action.payload, success:true}
+
+        case GET_USER_FAIL:
+            return {loading: false, error: action.payload, success:false }
+
+        case GET_USER_RESET:
             return { }
 
         default:

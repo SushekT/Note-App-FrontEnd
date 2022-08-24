@@ -13,74 +13,13 @@ import Button from '@mui/material/Button';
 import Avatar from '@mui/material/Avatar';
 import AvatarGroup from '@mui/material/AvatarGroup';
 import Grid from '@mui/material/Grid';
-import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete';
+import Autocomplete from '@mui/material/Autocomplete';
 
 import { ReactComponent as ArrowLeft } from '../assets/chevron-left.svg'
 import { useDispatch, useSelector } from 'react-redux';
 import { createNewNote, getNotesDetail, getNotesDetailDelete, getNotesUpdateDetail } from '../reducers/notes/notes.action';
 import { USER_NOTE_DETAIL_RESET } from '../reducers/notes/notes.types';
-
-interface Film {
-    title: string;
-    year: number;
-  }
-  
-  function sleep(delay = 0) {
-    return new Promise((resolve) => {
-      setTimeout(resolve, delay);
-    });
-  }
-
-  // Top films as rated by IMDb users. http://www.imdb.com/chart/top
-const topFilms = [
-    { title: 'The Shawshank Redemption', year: 1994 },
-    { title: 'The Godfather', year: 1972 },
-    { title: 'The Godfather: Part II', year: 1974 },
-    { title: 'The Dark Knight', year: 2008 },
-    { title: '12 Angry Men', year: 1957 },
-    { title: "Schindler's List", year: 1993 },
-    { title: 'Pulp Fiction', year: 1994 },
-    {
-      title: 'The Lord of the Rings: The Return of the King',
-      year: 2003,
-    },
-    { title: 'The Good, the Bad and the Ugly', year: 1966 },
-    { title: 'Fight Club', year: 1999 },
-    {
-      title: 'The Lord of the Rings: The Fellowship of the Ring',
-      year: 2001,
-    },
-    {
-      title: 'Star Wars: Episode V - The Empire Strikes Back',
-      year: 1980,
-    },
-    { title: 'Forrest Gump', year: 1994 },
-    { title: 'Inception', year: 2010 },
-    {
-      title: 'The Lord of the Rings: The Two Towers',
-      year: 2002,
-    },
-    { title: "One Flew Over the Cuckoo's Nest", year: 1975 },
-    { title: 'Goodfellas', year: 1990 },
-    { title: 'The Matrix', year: 1999 },
-    { title: 'Seven Samurai', year: 1954 },
-    {
-      title: 'Star Wars: Episode IV - A New Hope',
-      year: 1977,
-    },
-    { title: 'City of God', year: 2002 },
-    { title: 'Se7en', year: 1995 },
-    { title: 'The Silence of the Lambs', year: 1991 },
-    { title: "It's a Wonderful Life", year: 1946 },
-    { title: 'Life Is Beautiful', year: 1997 },
-    { title: 'The Usual Suspects', year: 1995 },
-    { title: 'Léon: The Professional', year: 1994 },
-    { title: 'Spirited Away', year: 2001 },
-    { title: 'Saving Private Ryan', year: 1998 },
-    { title: 'Once Upon a Time in the West', year: 1968 },
-    { title: 'American History X', year: 1998 },
-    { title: 'Interstellar', year: 2014 },
-  ];
+import { allUsers } from '../reducers/login/login.action';
 
 function Note({match, history}) {
 
@@ -88,43 +27,42 @@ function Note({match, history}) {
 
     const [collaborateOpen, setCollaborateOpen] = React.useState(false);
     const [options, setOptions] = useState({ 
-        title: '',
-        year: 0,
+        email: '',
+        id: 0,
+        image: ''
 });
-    const collaborateLoading = collaborateOpen && options.length === 0;
         
     
     let [note, setNoteDetail] = useState('')
-    const [open, setOpen] = React.useState(false);
-
+    const [open, setOpen] = useState(false);
+    const [active, setActive] = useState(false)
 
     const dispatch = useDispatch()
 
     const noteDetailState = useSelector(state => state.noteDetails)
     const { error, loading, noteDetail, success } = noteDetailState
 
+
+    const getAllUser = useSelector(state => state.getAllUser)
+    const { alluser, success:allusersuccess, loading:collaborateLoading } = getAllUser
+
     useEffect(() => {
-        let active = true;
     
-        if (!collaborateLoading) {
-          return undefined;
+        if (allusersuccess) {
+          console.log(alluser)
+          setOptions(alluser.map((user) => ({
+            'email': user.user.email,
+            'id' : user.id,
+            'image': user.profile_pic
+          }
+            )));
         }
     
-        (async () => {
-          await sleep(1e3); // For demo purposes.
-    
-          if (active) {
-            setOptions([...topFilms]);
-          }
-        })();
-    
-        return () => {
-          active = false;
-        };
-      }, [collaborateLoading]);
+  
+      }, [allusersuccess, active]);
 
 
-      React.useEffect(() => {
+      useEffect(() => {
         if (!collaborateOpen) {
           setOptions([]);
         }
@@ -202,9 +140,17 @@ function Note({match, history}) {
         setOpen(true);
     };
 
-    const handleClose = () => {
+    const handleClose = (e) => {
+        console.log(e.target.value)
         setOpen(false);
     };
+
+    const inputChange = (e) =>{
+      if (e.target.value.length > 1){
+        dispatch(allUsers(e.target.value))
+        setActive(true)
+      }
+    }
 
     // let notes = note.find(note => note.id == noteId)
 
@@ -257,7 +203,7 @@ function Note({match, history}) {
                         Please add the authorized person as they can view/edit your notes.
                     </DialogContentText>
                     <Autocomplete
-                        id="asynchronous-demo"
+                        id="collaboration_search"
                         sx={{ width: 500, mt: 2 }}
                         open={collaborateOpen}
                         onOpen={() => {
@@ -266,19 +212,20 @@ function Note({match, history}) {
                         onClose={() => {
                             setCollaborateOpen(false);
                         }}
-                        isOptionEqualToValue={(option, value) => option.title === value.title}
-                        getOptionLabel={(option) => option.title}
+                        isOptionEqualToValue={(option, value) => option.email === value}
+                        getOptionLabel={(option) => option.email}
                         options={options}
                         loading={collaborateLoading}
                         renderInput={(params) => (
                             <TextField
                             {...params}
+                            onChange = {(e) => inputChange(e)}
                             label="Search By Email"
                             InputProps={{
                                 ...params.InputProps,
                                 endAdornment: (
                                 <React.Fragment>
-                                    {collaborateLoading ? <CircularProgress color="inherit" size={20} /> : null}
+                                    {collaborateLoading ? <CircularProgress color="warning" size={20} /> : null}
                                     {params.InputProps.endAdornment}
                                 </React.Fragment>
                                 ),
@@ -289,7 +236,7 @@ function Note({match, history}) {
                     </DialogContent>
                     <DialogActions>
                     <Button onClick={handleClose}>Cancel</Button>
-                    <Button onClick={handleClose}>Add Them</Button>
+                    <Button onClick={(e) => handleClose(e)}>Add Them</Button>
                     </DialogActions>
                 </Dialog>
             </div>

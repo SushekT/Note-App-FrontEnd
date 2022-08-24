@@ -19,6 +19,11 @@ import {
     USER_UPDATE_FAIL,
     USER_UPDATE_RESET,
     USER_UPDATE_GET_SUCCESS,
+
+    GET_USER_REQUEST,
+    GET_USER_SUCCESS,
+    GET_USER_FAIL,
+    GET_USER_RESET
     
 
  } from './logic.types'
@@ -231,6 +236,41 @@ import {
     } catch(error) {
         dispatch({
             type: USER_UPDATE_FAIL,
+            payload: error.response && error.response.data.detail
+            ? error.response.data.detail 
+            : error.message,
+        })
+    }
+ }
+
+
+ export const allUsers = ( name ) => async (dispatch, getState) => {
+    try {
+        dispatch({
+            type: GET_USER_REQUEST
+        })
+        const {userLogin: { userInfo }} = getState()
+
+        const config = {
+            headers: {
+                'Content-type': 'application/json',
+                Authorization: `Bearer ${userInfo.access}`
+            }
+        }
+        const { data } = await axios.get(
+            `/user/users/?search=${name}`,
+            config
+        )
+
+        dispatch({
+            type: GET_USER_SUCCESS,
+            payload: data
+        })
+
+        // localStorage.setItem('userInfo', JSON.stringify(data))
+    } catch(error) {
+        dispatch({
+            type: GET_USER_FAIL,
             payload: error.response && error.response.data.detail
             ? error.response.data.detail 
             : error.message,
