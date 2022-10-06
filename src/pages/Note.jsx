@@ -14,12 +14,21 @@ import Avatar from '@mui/material/Avatar';
 import AvatarGroup from '@mui/material/AvatarGroup';
 import Grid from '@mui/material/Grid';
 import Autocomplete from '@mui/material/Autocomplete';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemText from '@mui/material/ListItemText';
+import ListItemAvatar from '@mui/material/ListItemAvatar';
+import InputLabel from '@mui/material/InputLabel';
+import FormControl from '@mui/material/FormControl';
+import NativeSelect from '@mui/material/NativeSelect';
 
 import { ReactComponent as ArrowLeft } from '../assets/chevron-left.svg'
 import { useDispatch, useSelector } from 'react-redux';
 import { createNewNote, getNotesDetail, getNotesDetailDelete, getNotesUpdateDetail } from '../reducers/notes/notes.action';
 import { USER_NOTE_DETAIL_RESET } from '../reducers/notes/notes.types';
 import { allUsers } from '../reducers/login/login.action';
+
 
 function Note({match, history}) {
 
@@ -72,6 +81,7 @@ function Note({match, history}) {
         
         if (success){
             setNoteDetail(noteDetail)
+
 
         }else{
             if (noteId != 'new'){
@@ -152,7 +162,26 @@ function Note({match, history}) {
       }
     }
 
-    // let notes = note.find(note => note.id == noteId)
+    const [checked, setChecked] = React.useState([1]);
+
+    const handleToggle = (value: number) => () => {
+        const currentIndex = checked.indexOf(value);
+        const newChecked = [...checked];
+
+        if (currentIndex === -1) {
+        newChecked.push(value);
+        } else {
+        newChecked.splice(currentIndex, 1);
+        }
+
+        setChecked(newChecked);
+    };
+
+    const [permissionId, setPermissionId] = useState('')
+
+    const handleChange = (event: SelectChangeEvent) => {
+        setPermissionId(event.target.value);
+    };
 
     return (
         <div className="note">
@@ -201,6 +230,59 @@ function Note({match, history}) {
                     <DialogContent>
                     <DialogContentText>
                         Please add the authorized person as they can view/edit your notes.
+                        {
+                            noteDetail? <List dense sx={{ width: '100%', 
+                           position: 'relative', overflow: 'auto', 
+                            maxHeight: 100,
+                            '&::-webkit-scrollbar': {
+                                width: '0.09em'
+                              },
+                              '&::-webkit-scrollbar-track': {
+                                boxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)',
+                                webkitBoxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)'
+                              },
+                              '&::-webkit-scrollbar-thumb': {
+                                backgroundColor: 'rgba(0,0,0,.1)',
+                                outline: '1px solid slategrey'
+                              } }}>
+                            {noteDetail.collaborators.map((collaborators, index ) => {
+                                const labelId = `checkbox-list-secondary-label-${collaborators.profile.id}`;
+                                return (
+                                <ListItem
+                                    key={collaborators.profile.id} sx={{ p: 3 }}
+                                    secondaryAction={
+                                        <FormControl fullWidth>
+                                            <InputLabel id="select-label">Permission</InputLabel>
+                                            <NativeSelect
+                                            defaultValue={collaborators.permission == 'EDITOR'? 10 : 20 }
+                                            inputProps={{
+                                                name: 'age',
+                                                id: 'uncontrolled-native',
+                                            }}
+                                            >
+                                                <option value={10}>Editor</option>
+                                                <option value={20}>Read Only</option>
+                                               
+                                            </NativeSelect>
+                                      </FormControl>
+                                    }
+                                    disablePadding
+                                >
+                                    <ListItemButton>
+                                    <ListItemAvatar>
+                                        <Avatar
+                                        alt={collaborators.collaborators.username}
+                                        src={collaborators.profile == null ? 'https://icon-library.com/images/unknown-person-icon/unknown-person-icon-4.jpg' :  collaborators.profile.imageURL }
+                                        />
+                                    </ListItemAvatar>
+                                    <ListItemText id={labelId} primary={`${collaborators.profile.user.email}`} />
+                                    </ListItemButton>
+                                </ListItem>
+                                );
+                            })}
+                            </List> : 'dsfs'
+                        }
+                        
                     </DialogContentText>
                     <Autocomplete
                         id="collaboration_search"
