@@ -16,18 +16,22 @@ import Grid from '@mui/material/Grid';
 import Autocomplete from '@mui/material/Autocomplete';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
-import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import ListItemAvatar from '@mui/material/ListItemAvatar';
 import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
 import NativeSelect from '@mui/material/NativeSelect';
+import Snackbar from '@mui/material/Snackbar';
+import IconButton from '@mui/material/IconButton';
+import CloseIcon from '@mui/icons-material/Close';
 
 import { ReactComponent as ArrowLeft } from '../assets/chevron-left.svg'
 import { useDispatch, useSelector } from 'react-redux';
 import { createNewNote, getNotesDetail, getNotesDetailDelete, getNotesUpdateDetail } from '../reducers/notes/notes.action';
 import { USER_NOTE_DETAIL_RESET } from '../reducers/notes/notes.types';
 import { allUsers } from '../reducers/login/login.action';
+import { addCollaboration } from '../reducers/collaboration/collaboration.action';
+import { COLLABORATION_RESET } from '../reducers/collaboration/collaboration.types';
 
 
 function Note({match, history}) {
@@ -45,6 +49,9 @@ function Note({match, history}) {
     let [note, setNoteDetail] = useState('')
     const [open, setOpen] = useState(false);
     const [active, setActive] = useState(false)
+    const [collaborateEmail, setCollaborateEmail] = useState('')
+    const [openSnackBar, setOpenSnackBar] = useState(false);
+    
 
     const dispatch = useDispatch()
 
@@ -55,10 +62,12 @@ function Note({match, history}) {
     const getAllUser = useSelector(state => state.getAllUser)
     const { alluser, success:allusersuccess, loading:collaborateLoading } = getAllUser
 
+    const addcollaborator = useSelector(state => state.addcollaborator)
+    const { success:addcollaboratorSuccess, error:addcollaboratorerror } = addcollaborator
+
     useEffect(() => {
     
         if (allusersuccess) {
-          console.log(alluser)
           setOptions(alluser.map((user) => ({
             'email': user.user.email,
             'id' : user.id,
@@ -68,7 +77,7 @@ function Note({match, history}) {
         }
     
   
-      }, [allusersuccess, active]);
+      }, [allusersuccess, active,]);
 
 
       useEffect(() => {
@@ -93,17 +102,22 @@ function Note({match, history}) {
     }, [noteId, noteDetail, dispatch])
 
     useEffect(() => {
-        console.log(noteId)
         if (noteId != 'new'){
             dispatch(getNotesDetail(noteId))
-        } 
+        }
+        if (addcollaboratorSuccess || addcollaboratorerror) {
+            setOpenSnackBar(true)
+        }
         
-    }, [])
+    }, [addcollaboratorSuccess, addcollaboratorerror])
 
     useEffect(() => {
         return () => {
           dispatch({
             type: USER_NOTE_DETAIL_RESET
+        })
+        dispatch({
+            type: COLLABORATION_RESET
         })
         };
       }, []);
@@ -151,7 +165,6 @@ function Note({match, history}) {
     };
 
     const handleClose = (e) => {
-        console.log(e.target.value)
         setOpen(false);
     };
 
@@ -160,6 +173,13 @@ function Note({match, history}) {
         dispatch(allUsers(e.target.value))
         setActive(true)
       }
+    }
+
+    const handleAdd = (e) =>{
+        const formData = new FormData()
+        formData.append('collaborators', collaborateEmail);
+        dispatch(addCollaboration(formData, noteId))
+        setOpen(false);
     }
 
     const [checked, setChecked] = React.useState([1]);
@@ -183,6 +203,30 @@ function Note({match, history}) {
         setPermissionId(event.target.value);
     };
 
+    const handleCloseSnackBar = (event: React.SyntheticEvent | Event, reason?: string) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+    
+        setOpenSnackBar(false);
+        };
+
+    const action = (
+        <React.Fragment>
+            <Button color="secondary" size="small" onClick={handleCloseSnackBar}>
+            UNDO
+            </Button>
+            <IconButton
+            size="small"
+            aria-label="close"
+            color="inherit"
+            onClick={handleCloseSnackBar}
+            >
+            <CloseIcon fontSize="small" />
+            </IconButton>
+        </React.Fragment>
+        );
+
     return (
         <div className="note">
             <div className="note-header">
@@ -198,8 +242,8 @@ function Note({match, history}) {
 
                             <AvatarGroup max={4} sx={{ ml:4 }}>
                                 {noteDetail? noteDetail.collaborators.map((collaborators) => (
-                                    <Avatar alt={collaborators.collaborators.username} 
-                                    src={collaborators.profile == null ? 'https://icon-library.com/images/unknown-person-icon/unknown-person-icon-4.jpg' :  collaborators.profile.imageURL } />
+                                    <Avatar key={collaborators.collaborators.id} alt={collaborators.collaborators.username} 
+                                    src={collaborators.profile == null ? 'https://icon-library.com/images/unknown-person-icon/unknown-person-icon-4.jpg' :  collaborators.profile.profile_pic } />
                                 )): ''}
                                 
                             </AvatarGroup>
@@ -245,20 +289,16 @@ function Note({match, history}) {
                                 backgroundColor: 'rgba(0,0,0,.1)',
                                 outline: '1px solid slategrey'
                               } }}>
-                            {noteDetail.collaborators.map((collaborators, index ) => {
-                                const labelId = `checkbox-list-secondary-label-${collaborators.profile.id}`;
+                            {noteDetail.collaborators.map((collaborator) => {
+                                const labelId = `checkbox-list-secondary-label-${collaborator.id}`;
                                 return (
                                 <ListItem
-                                    key={collaborators.profile.id} sx={{ p: 3 }}
+                                    key={collaborator.collaborators.id} sx={{ p: 3 }}
                                     secondaryAction={
                                         <FormControl fullWidth>
                                             <InputLabel id="select-label">Permission</InputLabel>
                                             <NativeSelect
-                                            defaultValue={collaborators.permission == 'EDITOR'? 10 : 20 }
-                                            inputProps={{
-                                                name: 'age',
-                                                id: 'uncontrolled-native',
-                                            }}
+                                            defaultValue={collaborator.permission == "EDITOR" ? 10 : 20 }
                                             >
                                                 <option value={10}>Editor</option>
                                                 <option value={20}>Read Only</option>
@@ -268,15 +308,15 @@ function Note({match, history}) {
                                     }
                                     disablePadding
                                 >
-                                    <ListItemButton>
-                                    <ListItemAvatar>
+                                  
+                                    <ListItemAvatar key={collaborator.collaborators.id}>         
                                         <Avatar
-                                        alt={collaborators.collaborators.username}
-                                        src={collaborators.profile == null ? 'https://icon-library.com/images/unknown-person-icon/unknown-person-icon-4.jpg' :  collaborators.profile.imageURL }
+                                        alt={collaborator.username}
+                                        src={collaborator.profile == null ? 'https://icon-library.com/images/unknown-person-icon/unknown-person-icon-4.jpg' :  collaborator.profile.profile_pic }
                                         />
                                     </ListItemAvatar>
-                                    <ListItemText id={labelId} primary={`${collaborators.profile.user.email}`} />
-                                    </ListItemButton>
+                                    <ListItemText key={labelId} id={labelId} primary={`${collaborator.collaborators.email}`} />
+                                    
                                 </ListItem>
                                 );
                             })}
@@ -298,6 +338,9 @@ function Note({match, history}) {
                         getOptionLabel={(option) => option.email}
                         options={options}
                         loading={collaborateLoading}
+                        onChange = {(event, newValue) =>{
+                            setCollaborateEmail(newValue.email)
+                        }}
                         renderInput={(params) => (
                             <TextField
                             {...params}
@@ -318,9 +361,16 @@ function Note({match, history}) {
                     </DialogContent>
                     <DialogActions>
                     <Button onClick={handleClose}>Cancel</Button>
-                    <Button onClick={(e) => handleClose(e)}>Add Them</Button>
+                    <Button onClick={(e) => handleAdd(e)}>Add Them</Button>
                     </DialogActions>
                 </Dialog>
+                <Snackbar
+                    open={openSnackBar}
+                    autoHideDuration={6000}
+                    onClose={handleCloseSnackBar}
+                    message={addcollaboratorSuccess?"Collaboration Added": "You don't have permission to do this action"}
+                    action={action}
+                />
             </div>
 
         </div>
